@@ -2,9 +2,18 @@ const { webdriver, Builder, By, Key } = require('selenium-webdriver');
 const twitter = {
     driver: null,
     getUserName: async () => await twitter.driver.findElement(By.css("div[data-testid=User-Names]")).getText(),
-    getTweet: async (e) =>  await e.findElement(By.css("div[data-testid=tweetText]")).getText(),
-    saveTweet (tweet = null, ussername = null) {
-        console.log(tweet, ussername)
+    getTweet: async (e) => await e.findElement(By.css("div[data-testid=tweetText]")).getText(),
+    saveTweet(tweet = null, ussername = null) {
+        const formData = new FormData();
+        formData.append('tweet', tweet);
+        formData.append('ussername', ussername);
+        fetch('https://example.com/profile', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
     },
     start: async () => {
         twitter.driver = await new Builder().forBrowser('chrome').build();
