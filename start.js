@@ -20,54 +20,57 @@ const db = {
 const twitter = {
     driver: null,
     data: [],
-    getTweet: async (e) => {
-        let text = await e.findElement(By.css("[data-testid=tweetText]")).getText();
-        return text.replace(/(\r\n|\n|\r|')/gm, " ");
-    },
-    getUserTweet: async (e) => {
-        let userTweet = await e.findElement(By.css("[data-testid=User-Names]")).getText();
-        userTweet = userTweet.split("\n")
-        userTweet[2] = userTweet[3]
-        userTweet.pop()
-        return userTweet;
-    },
-    setData: async (result) => {
-        for (let e of result) twitter.data.push({
-            tweet: await twitter.getTweet(e),
-            ussernames: await twitter.getUserTweet(e),
-        })
-    },
-    saveTweets: async () => {
-        let insert = `INSERT INTO tweet (nom, user, text, date) VALUES `;
-        let values = '';
-        for (let data of twitter.data) values += ((values != '') ? ',' : '') + ` ('${data.ussernames[0]}', '${data.ussernames[1]}', '${data.tweet}', '${data.ussernames[2]}')`;
-        db.executeSQL(insert + values);
-    },
-    start: async (user) => {
+    start: async function (user) {
         var result = []
         var loadTwitts = false
         var tries = 0
 
-        twitter.driver = await new Builder().forBrowser('chrome').build();
+        this.driver = await new Builder().forBrowser('chrome').build();
         
-        await twitter.driver.get('https://twitter.com/'+user);
+        await this.driver.get('https://twitter.com/'+user);
         
         while(!loadTwitts){
-            result = await twitter.driver.findElements(By.css("[data-testid='tweet']"));
+            result = await this.driver.findElements(By.css("[data-testid='tweet']"));
             loadTwitts = result.length > 0 || tries  > 20
             await new Promise(resolve => setTimeout(resolve, 1000))
             tries ++
         }
             
         if (tries < 20){
-            await twitter.setData(result); 
-            //console.log(twitter.data);
-            await twitter.saveTweets()
+            await this.setData(result); 
+            //console.log(this.data);
+            await this.saveTweets()
         } else console.log('Error en la red de twitter')
+        console.log(`Llegaron ${this.data.length} twitts`)
         
-        console.log(`Llegaron ${twitter.data.length} twitts`)
-        await twitter.driver.quit();
+        this.end()
+    },
+    getTweet: async function (e) {
+        let text = await e.findElement(By.css("[data-testid=tweetText]")).getText();
+        return text.replace(/(\r\n|\n|\r|')/gm, " ");
+    },
+    getUserTweet: async function (e) {
+        let userTweet = await e.findElement(By.css("[data-testid=User-Names]")).getText();
+        userTweet = userTweet.split("\n")
+        userTweet[2] = userTweet[3]
+        userTweet.pop()
+        return userTweet;
+    },
+    setData: async function (result) {
+        for (let e of result) this.data.push({
+            tweet: await this.getTweet(e),
+            ussernames: await this.getUserTweet(e),
+        })
+    },
+    saveTweets: async function () {
+        let insert = `INSERT INTO tweet (nom, user, text, date) VALUES `;
+        let values = '';
+        for (let data of this.data) values += ((values != '') ? ',' : '') + ` ('${data.ussernames[0]}', '${data.ussernames[1]}', '${data.tweet}', '${data.ussernames[2]}')`;
+        db.executeSQL(insert + values);
+    },
     
+    end: async function (){
+        await this.driver.quit() 
     }
 }
-twitter.start('el_canadas')
+twitter.start('e_bueso')
