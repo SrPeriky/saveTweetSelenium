@@ -1,4 +1,6 @@
 {
+  "main": "start.js",
+  "type":"module",
   "dependencies": {
     "node-fetch": "^3.2.10",
     "selenium-webdriver": "^4.5.0"
