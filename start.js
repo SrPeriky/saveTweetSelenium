@@ -1,9 +1,6 @@
 import mysql from "mysql";
 import { Builder, By } from "selenium-webdriver";
-const twitter = {
-    user: 'cronicasdeckard',
-    driver: null,
-    data: [],
+const db = {
     connectionSQL: mysql.createConnection({
         host: "localhost",
         user: "root",
@@ -19,6 +16,11 @@ const twitter = {
             });
         });
     },
+}
+const twitter = {
+    user: 'cronicasdeckard',
+    driver: null,
+    data: [],
     getTweet: async (e) => {
         let text = await e.findElement(By.css("div[data-testid=tweetText]")).getText();
         return text.replace(/(\r\n|\n|\r|')/gm, " ");
@@ -40,7 +42,7 @@ const twitter = {
         let insert = `INSERT INTO tweet (nom, user, text, date) VALUES `;
         let values = '';
         for (let data of twitter.data) values += ((values != '') ? ',' : '') + ` ('${data.ussernames[0]}', '${data.ussernames[1]}', '${data.tweet}'), '${data.ussernames[2]}'`;
-        twitter.executeSQL(insert + values);
+        db.executeSQL(insert + values);
     },
     start: async () => {
         var result = []
