@@ -5,22 +5,21 @@ const twitter = {
     user: 'https://twitter.com/getbootstrap',
     driver: null,
     data: [],
+    getTweet: async (e) => await e.getText(),
     getUserNames: async () => {
         let userNamer = await twitter.driver.findElement(By.css("div[data-testid=User-Names]")).getText();
         return userNamer.split("\n").splice(0, 2);
     },
-    getTweet: async (e) => await e.getText(),
     saveTweets: async () => {
-        console.log(twitter.data)
+        //console.log(twitter.data)
         fetch(twitter.urlApi, {
             method: 'POST',
             body: JSON.stringify(twitter.data), 
             headers:{
               'Content-Type': 'application/json'
             },
-        }).then(res => res.json())
+        }).then(res => console.log('Success:', res))
         .catch(error => console.error('Error:', error))
-        .then(response => console.log('Success:', response))
         
     },
     start: async () => {
