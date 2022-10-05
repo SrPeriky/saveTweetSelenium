@@ -1,26 +1,50 @@
-import fetch from "node-fetch";
+import mysql from "mysql";
 import { Builder, By } from "selenium-webdriver";
 const twitter = {
-    urlApi: 'https://httpbin.org/post',
-    user: 'https://twitter.com/getbootstrap',
+    user: 'https://twitter.com/Minecraft',
     driver: null,
     data: [],
-    getTweet: async (e) => await e.getText(),
+    connectionSQL: mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "AbCd1234",
+        database: "twitter",
+    }),
+    executeSQL (sql) {
+        twitter.connectionSQL.connect(function(err) {
+            if (err) throw err;
+            console.log("Connected!");
+            twitter.connectionSQL.query(sql, function (err, result, fields) {
+              if (err) throw err;
+              return result;
+            });
+        });
+    },
+    /*newDatabase () {
+        twitter.executeSQL("CREATE DATABASE twitter");
+        twitter.executeSQL(`CREATE TABLE tweet (
+            id  int(11) NOT NULL AUTO_INCREMENT,
+            nom varchar(50) DEFAULT NULL,
+            user varchar(50) DEFAULT NULL,
+            text varchar(280) DEFAULT NULL,
+            PRIMARY KEY (id)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`);
+    },*/
+    getTweet: async (e) => {
+        let text = await e.getText();
+        console.log();
+        return text.replace(/(\r\n|\n|\r|')/gm, " ");
+    },
     getUserNames: async () => {
         let userNamer = await twitter.driver.findElement(By.css("div[data-testid=User-Names]")).getText();
         return userNamer.split("\n").splice(0, 2);
     },
     saveTweets: async () => {
-        //console.log(twitter.data)
-        fetch(twitter.urlApi, {
-            method: 'POST',
-            body: JSON.stringify(twitter.data), 
-            headers:{
-              'Content-Type': 'application/json'
-            },
-        }).then(res => console.log('Success:', res))
-        .catch(error => console.error('Error:', error))
-        
+        let sql = `INSERT INTO tweet (nom, user, text) VALUES `;
+        let values = '';
+        for (let data of twitter.data) values += ((values != '') ? ',' : '') + ` ('${data.ussernames[0]}', '${data.ussernames[1]}', '${data.tweet}')`;
+        twitter.executeSQL(sql + values);
+        console.log( twitter.data)
     },
     start: async () => {
         twitter.driver = await new Builder().forBrowser('chrome').build();
