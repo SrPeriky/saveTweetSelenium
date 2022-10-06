@@ -4,7 +4,7 @@ const db = {
     connectionSQL: mysql.createConnection({
         host: "localhost",
         user: "root",
-        password: "AbCd1234",
+        password: "",
         database: "twitter",
     }),
     executeSQL (sql) {
@@ -52,20 +52,18 @@ const twitter = {
     getUserTweet: async function (e) {
         let userTweet = await e.findElement(By.css("[data-testid=User-Names]")).getText();
         userTweet = userTweet.split("\n")
-        userTweet[2] = userTweet[3]
-        userTweet.pop()
-        return userTweet;
+        return {nom: userTweet[0], user: userTweet[1], date: userTweet[3]};
     },
     setData: async function (result) {
         for (let e of result) this.data.push({
             tweet: await this.getTweet(e),
-            ussernames: await this.getUserTweet(e),
+            usertweet: await this.getUserTweet(e),
         })
     },
     saveTweets: async function () {
         let insert = `INSERT INTO tweet (nom, user, text, date) VALUES `;
         let values = '';
-        for (let data of this.data) values += ((values != '') ? ',' : '') + ` ('${data.ussernames[0]}', '${data.ussernames[1]}', '${data.tweet}', '${data.ussernames[2]}')`;
+        for (let value of this.data) values += ((values != '') ? ',' : '') + ` ('${value.usertweet.nom}', '${value.usertweet.user}', '${value.tweet}', '${value.usertweet.date}')`;
         db.executeSQL(insert + values);
     },
     
@@ -73,4 +71,4 @@ const twitter = {
         await this.driver.quit() 
     }
 }
-twitter.start('e_bueso')
+twitter.start('@petrogustavo')
