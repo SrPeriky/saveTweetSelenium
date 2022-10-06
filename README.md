@@ -54,7 +54,7 @@ function consultar($sql) {
 
 #### Correr la aplicacion 
 
-> _En_ `_start.js_` _editar (en la última línea)_ `_twitter.start('@petrogustavo')_` _para guardar los tweets de un usuario en específico_
+> _En_ `start.js` editar (en la última línea) `twitter.start('@petrogustavo')` _para guardar los tweets de un usuario en específico_
 
 Ejecute:
 
