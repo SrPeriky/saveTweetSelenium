@@ -38,12 +38,12 @@ const twitter = {
             
         if (tries < 20){
             await this.setData(result); 
-            //console.log(this.data);
             await this.saveTweets()
         } else console.log('Error en la red de twitter')
         console.log(`Llegaron ${this.data.length} twitts`)
         
         this.end()
+        return 0;
     },
     getTweet: async function (e) {
         let text = await e.findElement(By.css("[data-testid=tweetText]")).getText();
@@ -66,9 +66,8 @@ const twitter = {
         for (let value of this.data) values += ((values != '') ? ',' : '') + ` ('${value.usertweet.nom}', '${value.usertweet.user}', '${value.tweet}', '${value.usertweet.date}')`;
         db.executeSQL(insert + values);
     },
-    
     end: async function (){
         await this.driver.quit() 
     }
 }
-twitter.start('@petrogustavo')
+twitter.start('e_bueso')
