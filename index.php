@@ -11,8 +11,8 @@ function conectar($host, $usuario, $pass, $db)
     $pass,
     
   );
-} function consultar($sql)
-{
+} 
+function consultar($sql) {
   $connection = conectar("localhost", "root", "", "twitter");
   $data = array();
   $result = $connection->query($sql);
