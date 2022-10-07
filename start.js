@@ -2,28 +2,25 @@ import mysql from "mysql";
 import { Builder, By } from "selenium-webdriver";
 
 const db = {
-    connection: null,
-    on: function () { 
-        this.connection = mysql.createConnection({
-            host: "localhost",
-            user: "root",
-            password: "",
-            database: "twitter",
-        })
-    },
-    executeSQL: function (sql) {
-        this.connection.connect(function(err) {
+    connection: mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "",
+        database: "twitter",
+    }),
+    executeSQL: (sql) => {
+        db.connection.connect(function(err) {
             if (err) throw err;
-            this.connection.query(sql, function (err, result, fields) {
+            db.connection.query(sql, function (err, result, fields) {
               if (err) throw err;
               return result;
             });
         });
     },
-    off: function () {
-        if(this.connection != null){
-            this.connection.end()
-            this.connection = null
+    off: () => {
+        if(db.connection != null){
+            db.connection.end()
+            db.connection = null
         }
     },
 }
@@ -70,16 +67,15 @@ const twitter = {
         })
     },
     saveTweets: async function () {
-        db.on()
         let insert = `INSERT INTO tweet (nom, user, text, date) VALUES `;
         let values = '';
         for (let value of this.data) values += ((values != '') ? ',' : '') + ` ('${value.dataTweet.nom}', '${value.dataTweet.user}', '${value.tweet}', '${value.dataTweet.date}')`;
         db.executeSQL(insert + values);
-        db.off()
     },
     end: async function (){
         console.log(`Llegaron ${this.data.length} twitts`)
         await this.driver.quit() 
+        db.off()
     },
 }
 twitter.start('PirryOficial')
