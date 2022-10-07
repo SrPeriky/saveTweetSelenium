@@ -1,5 +1,6 @@
 import mysql from "mysql";
 import { Builder, By } from "selenium-webdriver";
+
 const db = {
     connection: null,
     on: function () { 
@@ -10,7 +11,7 @@ const db = {
             database: "twitter",
         })
     },
-    executeSQL (sql) {
+    executeSQL: function (sql) {
         this.connection.connect(function(err) {
             if (err) throw err;
             this.connection.query(sql, function (err, result, fields) {
@@ -79,6 +80,6 @@ const twitter = {
     end: async function (){
         console.log(`Llegaron ${this.data.length} twitts`)
         await this.driver.quit() 
-    }
+    },
 }
 twitter.start('PirryOficial')
