@@ -2,12 +2,15 @@ import mysql from "mysql"
 import { Builder, By } from "selenium-webdriver"
 
 const db = {
-    connection: mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "twitter",
-    }),
+    connection: null,
+    on: () => {
+        db.connection = mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "",
+            database: "twitter",
+        })
+    },
     executeSQL: (sql) => {
         db.connection.connect(function(err) {
             if (err) throw err
@@ -36,7 +39,6 @@ const twitter = {
         this.driver = await new Builder().forBrowser('chrome').build()
         
         await this.driver.get('https://twitter.com/'+user)
-        
         while(!loadTwitts){
             elements = await this.driver.findElements(By.css("[data-testid='tweet']"))
             loadTwitts = elements.length > 0 || tries  > 20
@@ -44,7 +46,7 @@ const twitter = {
             tries ++
         }
             
-        if (tries < 20){
+        if (tries < 20 && elements.length > 0){
             await this.setTweets(elements)
             await this.saveTweets()
         } else console.log('Error en la red de twitter')
@@ -52,21 +54,36 @@ const twitter = {
         this.end()
     },
     getTextTweet: async function (e) {
-        let text = await e.findElement(By.css("[data-testid=tweetText]")).getText()
+        let text = false;
+        try { 
+            text = await e.findElement(By.css("div[data-testid=tweetText]")).getText();
+        } catch (error){
+            // :) es un tweet sin texto
+            return text;
+        }
         return text.replace(/(\r\n|\n|\r|')/gm, " ")
     },
     getDataTweet: async function (e) {
-        let dataTweet = await e.findElement(By.css("[data-testid=User-Names]")).getText()
-        dataTweet = dataTweet.split("\n")
-        return {nom: dataTweet[0], user: dataTweet[1], date: dataTweet[3]}
+        let dataTweet = false
+        try{
+            dataTweet = await e.findElement(By.css("[data-testid=User-Names]")).getText()
+            dataTweet = dataTweet.split("\n")
+        } catch (error) {
+            return dataTweet;
+        } return {nom: dataTweet[0], user: dataTweet[1], date: dataTweet[3]}
     },
     setTweets: async function (result) {
-        for (let e of result) this.tweets.push({
-            textTweet: await this.getTextTweet(e),
-            dataTweet: await this.getDataTweet(e),
-        })
+        for (let e of result){
+            let textTweet = await this.getTextTweet(e)
+            let dataTweet = await this.getDataTweet(e)
+            if(textTweet!=false && dataTweet!=false) this.tweets.push({
+                textTweet: textTweet,
+                dataTweet: dataTweet,
+            })
+        }
     },
     saveTweets: async function () {
+        db.on()
         let insert = `INSERT INTO tweet (nom, user, text, date) VALUES `
         let values = ''
         for (let tw of this.tweets) {
