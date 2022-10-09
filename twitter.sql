@@ -6,5 +6,5 @@ CREATE TABLE `tweet` (
   `user` varchar(50) DEFAULT NULL,
   `text` varchar(360) DEFAULT NULL,
   `date` varchar(20) DEFAULT NULL,
-  ADD PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
