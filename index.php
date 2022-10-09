@@ -29,7 +29,7 @@ function consultar($sql) {
   }
   return $data;
 }
-$tweets = consultar('SELECT * FROM tweet ORDER BY id DESC LIMIT 5 ' ?? null;
+$tweets = consultar('SELECT * FROM tweet ORDER BY id DESC LIMIT 5 ') ?? null;
 ?>
 <!doctype html>
 <html lang="es">
